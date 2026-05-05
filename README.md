@@ -4,7 +4,7 @@
 
 <h1>Terraform Enterprise Networking</h1>
 
-<p><strong>The Strategic Foundation for Secure, Scalable, and Compliant Multi-Cloud Networking Architectures using Infrastructure as Code</strong></p>
+<p><strong>The Strategic Foundation for Secure, Scalable, and Compliant Multi-Cloud Networking Architectures.</strong></p>
 
 [![Standard: IaC-Excellence](https://img.shields.io/badge/Standard-IaC--Excellence-blue.svg?style=for-the-badge&labelColor=000000)]()
 [![Status: Production--Ready](https://img.shields.io/badge/Status-Production--Ready-emerald.svg?style=for-the-badge&labelColor=000000)]()
@@ -13,7 +13,7 @@
 <br/>
 
 > **"Code is the network."** 
-> Terraform Enterprise Networking (TF-Net) is an enterprise-grade platform designed to provide a secure, measurable, and highly automated foundation for global multi-cloud connectivity. It orchestrates the complex lifecycle of networking resources—from VPC/VNet provisioning and hub-and-spoke topology orchestration to real-time security control enforcement, load balancing, and private DNS management. By providing a centralized command center with unified networking-as-code modules, automated validation pipelines, and immutable audit trails, it enables organizations to eliminate configuration drift, ensure five-nines connectivity, and drive rapid digital transformation across the entire enterprise infrastructure.
+> **Terraform Enterprise Networking (TF-Net)** is an institutional-grade repository designed to provide a secure, measurable, and highly automated foundation for global multi-cloud connectivity. It orchestrates the entire lifecycle of networking resources—from VPC/VNet provisioning and hub-and-spoke topology orchestration to real-time security control enforcement.
 
 </div>
 
@@ -21,416 +21,274 @@
 
 ## 🏛️ Executive Summary
 
-Networking is the nervous system of the enterprise cloud; manual configuration is a strategic liability. Organizations fail to scale not because of a lack of bandwidth, but because of fragmented networking standards, lack of automated VPC orchestration, and an inability to enforce security controls with operational precision.
+Networking is the nervous system of the enterprise cloud; manual configuration is a strategic liability. Organizations often fail to scale not because of a lack of bandwidth, but because of fragmented networking standards and an inability to enforce security controls with operational precision.
 
-This platform provides the **Networking Automation Plane**. It implements a complete **Enterprise Infrastructure-as-Code Framework**—from modular VPC/Subnet engines and peering controllers to specialized load balancer modules and private connectivity hubs. By operationalizing networking as a primary automated capability, it ensures that your global infrastructure is not just "connected," but continuously optimized and delivered with strategic architectural precision.
+This platform provides the **Networking Automation Plane**. It implements a complete **Enterprise Infrastructure-as-Code Framework**, enabling network engineering teams to manage VPCs, Transits, and Firewalls as reusable, versioned modules. By treating networking as a primary automated capability, we ensure that the global infrastructure is continuously optimized and delivered with strategic architectural precision.
+
+---
+
+## 📐 Architecture Storytelling: Principal Reference Models
+
+### 1. Principal Architecture: Global Enterprise Hub-and-Spoke Network
+This diagram illustrates the end-to-end flow from on-premises data centers to multi-cloud spokes through a centralized network hub.
+
+```mermaid
+graph LR
+    %% Subgraph Definitions
+    subgraph OnPrem["On-Premises Data Center"]
+        direction TB
+        Core[Core Switch]
+        Edge[Edge Router]
+    end
+
+    subgraph HubNetwork["Central Networking Hub (Transit)"]
+        direction TB
+        TGW[Transit Gateway / Hub VNet]
+        FW[Azure Firewall / AWS Network FW]
+        DNS[Private DNS Resolver]
+    end
+
+    subgraph SpokeNetworks["Business Unit Spokes"]
+        direction TB
+        AppSpoke[Application VPC / VNet]
+        DataSpoke[Data VPC / VNet]
+        SharedSpoke[Shared Services VPC]
+    end
+
+    subgraph SecurityPerimeter["Network Security & Edge"]
+        direction TB
+        WAF[Azure WAF / AWS WAF]
+        LB[Load Balancer / Front Door]
+        Shield[DDoS Protection Shield]
+    end
+
+    subgraph DevOps["DevOps & IaC Automation"]
+        direction TB
+        GH[GitHub Actions]
+        TF[Terraform Networking Modules]
+        Monitor[VPC Flow Logs / Metrics]
+    end
+
+    %% Flow Arrows
+    Edge -->|1. ExpressRoute / VPN| HubNetwork
+    HubNetwork -->|2. Inspect| FW
+    FW -->|3. Route| TGW
+    TGW -->|4. Peer| AppSpoke
+    TGW -->|4. Peer| DataSpoke
+    
+    SecurityPerimeter -->|5. Filter| AppSpoke
+    AppSpoke -->|6. Resolve| DNS
+    
+    GH -->|7. Provision| TF
+    TF -->|8. Orchestrate| HubNetwork
+    
+    HubNetwork -->|Flow Telemetery| Monitor
+
+    %% Styling
+    classDef onprem fill:#f5f5f5,stroke:#616161,stroke-width:2px;
+    classDef hub fill:#ede7f6,stroke:#311b92,stroke-width:2px;
+    classDef spoke fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
+    classDef security fill:#fce4ec,stroke:#880e4f,stroke-width:2px;
+    classDef devops fill:#fffde7,stroke:#f57f17,stroke-width:2px;
+
+    class OnPrem onprem;
+    class HubNetwork hub;
+    class SpokeNetworks spoke;
+    class SecurityPerimeter security;
+    class DevOps devops;
+```
+
+### 2. Hybrid Connectivity: Secure Tunneling Flow
+The logical path for connecting legacy infrastructure to the cloud backbone.
+
+```mermaid
+graph LR
+    subgraph Cloud["Cloud VPC/VNet"]
+        VGW[VPN Gateway / ER Gateway]
+    end
+
+    subgraph Internet["Public / Private Path"]
+        Tunnels[IPsec Tunnels / ExpressRoute Circuit]
+    end
+
+    subgraph Local["On-Premise"]
+        CGW[Customer Gateway]
+    end
+
+    Local --- CGW
+    CGW --- Tunnels
+    Tunnels --- VGW
+    VGW --- Cloud
+```
+
+### 3. Cross-Region Peering & Global Backbone
+Building a high-speed, low-latency mesh across global cloud regions.
+
+```mermaid
+graph LR
+    R1[US-East Hub] <-->|Global Peering| R2[EU-West Hub]
+    R2 <-->|Global Peering| R3[Asia-South Hub]
+    R1 <-->|Mesh| R3
+```
+
+### 4. Network Security Perimeter: Tiered Defense
+Filtering traffic through multiple layers of inspection.
+
+```mermaid
+graph TD
+    User((External User)) --> WAF[Web Application Firewall]
+    WAF --> LB[Application Load Balancer]
+    LB --> NSG[Security Group / ACL]
+    NSG --> App[App Service]
+    App --> FW[Network Firewall]
+    FW --> External[Egress to Internet]
+```
+
+### 5. DNS & Resolution Hierarchy: Hybrid Mesh
+How the platform resolves names across Cloud and On-Premises.
+
+```mermaid
+graph LR
+    App[Cloud App] --> Resolver[Private Resolver]
+    Resolver --> Zone[Private DNS Zone]
+    Resolver --> Forward[Outbound Forwarder]
+    Forward --> OnPremDNS[On-Prem DNS Server]
+```
+
+### 6. Load Balancing Strategy: Multi-Tier Traffic
+Orchestrating traffic from the edge to the microservice.
+
+```mermaid
+graph TD
+    Edge[Global Front Door / Traffic Manager] --> Regional[Regional ALB / App Gateway]
+    Regional --> Ingress[K8s Ingress Controller]
+    Ingress --> Pod[Application Pod]
+```
+
+### 7. Private Link Flow: Secured PaaS Access
+Connecting to cloud services without using public endpoints.
+
+```mermaid
+graph LR
+    subgraph Spoke["Application Spoke"]
+        App[App Instance]
+        EP[Interface Endpoint / Private Link]
+    end
+
+    subgraph Service["Cloud Platform Services"]
+        PaaS[Storage / SQL / KeyVault]
+    end
+
+    App --> EP
+    EP -->|Private Backbone| PaaS
+```
+
+### 8. Traffic Mirroring & Inspection Hub
+Duplicating packets for deep inspection by security appliances.
+
+```mermaid
+graph LR
+    subgraph Source["Workload VPC"]
+        VM[Source VM]
+        Tap[Mirror Session]
+    end
+
+    subgraph Target["Security VPC"]
+        IDS[IDS / IPS Appliance]
+    end
+
+    VM --- Tap
+    Tap -->|Encapsulated Traffic| IDS
+```
+
+### 9. IaC Orchestration: Networking-as-Code
+The lifecycle of a VPC module from definition to deployment.
+
+```mermaid
+graph LR
+    HCL[Network Module] --> Plan[TF Plan]
+    Plan --> Policy[OPA / Sentinel Check]
+    Policy --> Apply[TF Apply]
+    Apply --> Resource[Live VPC / Hub]
+```
+
+### 10. Governance & Compliance Loop: Guardrails
+Ensuring network configurations never drift from security standards.
+
+```mermaid
+graph LR
+    Config[Live Network State] --> Auditor[Azure Policy / AWS Config]
+    Auditor -->|Non-Compliant| Remediate[Auto-Remediation]
+    Auditor -->|Compliant| Success[Audit Log]
+```
+
+### 11. Disaster Recovery (DR) Path: Secondary Connectivity
+Architecture for ensuring network uptime during a regional outage.
+
+```mermaid
+graph TD
+    Primary[Region A Hub] --- Secondary[Region B Hub]
+    Global[Global Traffic Manager] -->|Primary Path| Primary
+    Global -.->|Failover Path| Secondary
+```
 
 ---
 
 ## 🏛️ Core Platform Pillars
 
-1. **Modular VPC Foundation**: Standardized HCL modules for provisioning secure, multi-AZ VPCs and VNets with optimized CIDR allocation.
-2. **Hub-and-Spoke Orchestration**: Centralized control plane for managing transit gateways, peering, and spoke network connectivity.
-3. **Private Connectivity Bridge**: Secured modules for ExpressRoute, Direct Connect, and VPN gateways to ensure hybrid-cloud integrity.
-4. **Zero Trust Security Controls**: Code-driven enforcement of Network Security Groups (NSGs), Firewalls, and micro-segmentation.
-5. **Multi-Region Load Balancing**: Advanced orchestration of application gateways and ingress controllers for global traffic management.
-6. **Unified Observability Hub**: Code-based configuration of VPC Flow Logs, network metrics, and real-time connectivity monitoring.
-
----
-
-## 📐 Architecture Storytelling: 50+ Advanced Diagrams
-
-### 1. The Networking-as-Code Loop
-*The flow from HCL definition to production connectivity.*
-```mermaid
-graph TD
-    subgraph "Design (Modules)"
-        HCL[Terraform Modules]
-        Vars[Env Variables]
-        Policy[OPA Policies]
-    end
-
-    subgraph "Pipeline (CI/CD)"
-        Plan[Terraform Plan]
-        Val[Policy Validation]
-        Prom[Env Promotion]
-    end
-
-    subgraph "Provisioning (Cloud)"
-        Hub[Hub Network]
-        Spoke[Spoke Networks]
-        Sec[Security Controls]
-    end
-
-    subgraph "Operations (Intelligence)"
-        Flow[Flow Logs]
-        Dash[Ops Dashboard]
-        Audit[Audit Record]
-    end
-
-    HCL -->|1. Define| Plan
-    Vars -->|2. Config| Plan
-    Plan -->|3. Validate| Val
-    Val -->|4. Approved| Prom
-    Prom -->|5. Deploy| Hub
-    Prom -->|5. Deploy| Spoke
-    Prom -->|5. Deploy| Sec
-    Hub -->|6. Monitor| Flow
-    Flow -->|7. Visualize| Dash
-    Dash -->|8. Audit| Audit
-```
-
-### 2. Hub-and-Spoke Topology
-```mermaid
-graph LR
-    Hub[Transit Hub] --> Spoke1[App Spoke 1]
-    Hub --> Spoke2[App Spoke 2]
-    Hub --> Spoke3[DB Spoke]
-    VPN[On-Prem VPN] --> Hub
-    ER[ExpressRoute] --> Hub
-```
-
-### 3. Subnet Segmentation Model
-```mermaid
-graph LR
-    Public[Public Subnet] --> Private[Private App Subnet]
-    Private --> DB[Isolated DB Subnet]
-    Public --> IGW[Internet Gateway]
-    Private --> NAT[NAT Gateway]
-```
-
-### 4. Terraform Platform Architecture
-```mermaid
-graph LR
-    Local[Local Dev] --> Git[GitHub Repo]
-    Git --> Actions[Actions Runner]
-    Actions --> State[(Terraform Cloud/S3 State)]
-    Actions --> Cloud[Multi-Cloud APIs]
-```
-
-### 5. Deployment Topology: Multi-Region Failover
-```mermaid
-graph LR
-    R1[Region A Hub] --> Peer[VPC Peering]
-    Peer --> R2[Region B Hub]
-    R1 --> S1[Region A Spokes]
-    R2 --> S2[Region B Spokes]
-```
-
-### 6. Security Rule Flow
-```mermaid
-graph LR
-    Req[Inbound Request] --> SG{Security Group}
-    SG -->|Allow| FW{Network Firewall}
-    FW -->|Allow| App[Application Service]
-    SG -->|Deny| Drop[Traffic Dropped]
-```
-
-### 7. Foundation: Multi-Environment Setup
-```mermaid
-graph LR
-    F[Foun] --> M[Mult]
-```
-
-### 8. Networking: Secure Transit Tunnels
-```mermaid
-graph LR
-    N[Netw] --> S[Secu]
-```
-
-### 9. Component: VPC Module
-```mermaid
-graph LR
-    C[Comp] --> V[VPCM]
-```
-
-### 10. Component: Subnet Module
-```mermaid
-graph LR
-    C[Comp] --> S[Subn]
-```
-
-### 11. Component: Peering Module
-```mermaid
-graph LR
-    C[Comp] --> P[Peer]
-```
-
-### 12. Component: VPN Module
-```mermaid
-graph LR
-    C[Comp] --> V[VPNM]
-```
-
-### 13. Logic: CIDR Allocation
-```mermaid
-graph LR
-    L[Logi] --> C[CIDR]
-```
-
-### 14. Logic: Route Propagation
-```mermaid
-graph LR
-    L[Logi] --> R[Rout]
-```
-
-### 15. Logic: State Locking
-```mermaid
-graph LR
-    L[Logi] --> S[Stat]
-```
-
-### 16. Logic: Dependency Graph
-```mermaid
-graph LR
-    L[Logi] --> D[Depe]
-```
-
-### 17. Architecture: Global Control Plane
-```mermaid
-graph LR
-    A[Arch] --> G[Glob]
-```
-
-### 18. Architecture: Software Defined Network
-```mermaid
-graph LR
-    A[Arch] --> S[Soft]
-```
-
-### 19. Architecture: Multi-Sink Logging
-```mermaid
-graph LR
-    A[Arch] --> M[Mult]
-```
-
-### 20. Pattern: Infrastructure-as-a-Service
-```mermaid
-graph LR
-    P[Patt] --> I[Infr]
-```
-
-### 21. Pattern: Immutable Networking
-```mermaid
-graph LR
-    P[Patt] --> I[Immu]
-```
-
-### 22. Pattern: Automated Recovery
-```mermaid
-graph LR
-    P[Patt] --> A[Auto]
-```
-
-### 23. Security: Signed State Files
-```mermaid
-graph LR
-    S[Secu] --> S[Sign]
-```
-
-### 24. Security: RBAC Network Access
-```mermaid
-graph LR
-    S[Secu] --> R[RBAC]
-```
-
-### 25. Security: Secure Audit Record
-```mermaid
-graph LR
-    S[Secu] --> S[Secu]
-```
-
-### 26. Feature: Connectivity Heatmap UI
-```mermaid
-graph LR
-    F[Feat] --> C[Conn]
-```
-
-### 27. Feature: Real-time Flow Analytics
-```mermaid
-graph LR
-    F[Feat] --> R[Real]
-```
-
-### 28. Feature: Auto-generated Topology
-```mermaid
-graph LR
-    F[Feat] --> A[Auto]
-```
-
-### 29. Compliance: NIST Network Audits
-```mermaid
-graph LR
-    C[Comp] --> N[NIST]
-```
-
-### 30. Compliance: Audit Trail Persistence
-```mermaid
-graph LR
-    C[Comp] --> A[Audi]
-```
-
-### 31. Infrastructure: S3 Backend
-```mermaid
-graph LR
-    I[Infr] --> S[S3Be]
-```
-
-### 32. Infrastructure: DynamoDB Lock
-```mermaid
-graph LR
-    I[Infr] --> D[Dyna]
-```
-
-### 33. Deployment: GitHub Action Workers
-```mermaid
-graph LR
-    D[Depl] --> G[GitH]
-```
-
-### 34. Deployment: Multi-Region Sync
-```mermaid
-graph LR
-    D[Depl] --> M[Mult]
-```
-
-### 35. Monitoring: plan duration KPI
-```mermaid
-graph LR
-    M[Moni] --> P[Plan]
-```
-
-### 36. Monitoring: change failure rate
-```mermaid
-graph LR
-    M[Moni] --> C[Chan]
-```
-
-### 37. UI: Unified Networking Dashboard
-```mermaid
-graph LR
-    U[UI] --> U[Unif]
-```
-
-### 38. UI: Module Registry UI
-```mermaid
-graph LR
-    U[UI] --> M[Modu]
-```
-
-### 39. UI: Peering Topology View
-```mermaid
-graph LR
-    U[UI] --> P[Peer]
-```
-
-### 40. UI: Security Compliance Matrix
-```mermaid
-graph LR
-    U[UI] --> S[Secu]
-```
-
-### 41. CI/CD: Plan validation pipeline
-```mermaid
-graph LR
-    C[CICD] --> P[Plan]
-```
-
-### 42. CI/CD: Module integration tests
-```mermaid
-graph LR
-    C[CICD] --> M[Modu]
-```
-
-### 43. Strategy: Network-as-Code First
-```mermaid
-graph LR
-    S[Stra] --> N[Netw]
-```
-
-### 44. Strategy: Data-Driven Provisioning
-```mermaid
-graph LR
-    S[Stra] --> D[Data]
-```
-
-### 45. Feature: Multi-Cloud Peering Bridge
-```mermaid
-graph LR
-    F[Feat] --> M[Mult]
-```
-
-### 46. Feature: Real-time Drift Alerts
-```mermaid
-graph LR
-    F[Feat] --> R[Real]
-```
-
-### 47. Feature: Capacity Forecasting
-```mermaid
-graph LR
-    F[Feat] --> C[Capa]
-```
-
-### 48. Logic: CIDR Calculator Engine
-```mermaid
-graph LR
-    L[Logi] --> C[CIDR]
-```
-
-### 49. Data Model: Network Topology Entity
-```mermaid
-graph LR
-    D[Data] --> N[Netw]
-```
-
-### 50. Enterprise Networking Excellence
-```mermaid
-graph LR
-    E[Entr] --> N[Netw]
-```
+1.  **Modular VPC Foundation**: Standardized HCL modules for provisioning secure, multi-AZ VPCs and VNets with optimized CIDR allocation.
+2.  **Hub-and-Spoke Orchestration**: Centralized control plane for managing transit gateways and peering connectivity.
+3.  **Private Connectivity Bridge**: Secured modules for ExpressRoute, Direct Connect, and VPN gateways.
+4.  **Zero Trust Security Controls**: Code-driven enforcement of Firewalls, NSGs, and micro-segmentation.
+5.  **Multi-Region Load Balancing**: Advanced orchestration of application gateways and global traffic management.
+6.  **Unified Observability Hub**: Code-based configuration of VPC Flow Logs and real-time connectivity monitoring.
 
 ---
 
 ## 🛠️ Technical Stack & Implementation
 
 ### Terraform Engine & Modules
-- **IaC**: Terraform 1.0+.
-- **Providers**: AWS, Azure, GCP (Modular support).
-- **VPC Module**: Dynamic CIDR allocation, AZ management, and IGW/NAT attachment.
-- **Subnet Module**: Tiered segmentation (Public, Private, Isolated).
-- **Firewall Module**: Dynamic HCL for Security Groups and Network ACLs.
-- **State Management**: S3/DynamoDB (AWS) or Terraform Cloud.
-- **Validation**: `terraform validate`, `tflint`, and `checkov`.
+*   **IaC Engine**: Terraform 1.0+.
+*   **Cloud Providers**: AWS, Azure, GCP (Modularized).
+*   **Networking Modules**: VPC, VNet, Subnet, Peering, Transit Gateway, VPN, ExpressRoute.
+*   **Validation**: `terraform validate`, `tflint`, and `checkov`.
 
-### CI/CD (GitHub Actions)
-- **Plan Workflow**: Triggers on PR to validate HCL and show infrastructure changes.
-- **Apply Workflow**: Triggers on merge to main for environment promotion.
+### CI/CD & Security
+*   **Automation**: GitHub Actions with OIDC federation.
+*   **Governance**: Policy-as-code enforcement via OPA or Terraform Sentinels.
+*   **Observability**: VPC Flow Logs integrated with CloudWatch/Azure Monitor.
 
-### Infrastructure
-- **Hub Architecture**: Transit Gateway / VNet Hub simulation.
-- **Connectivity**: PrivateLink and VPN Gateway integration.
+---
+
+## 🏗️ IaC Mapping (Module Structure)
+
+| Module | Purpose | Real Services |
+| :--- | :--- | :--- |
+| **`modules/foundations`** | Core networking units | VPC, VNet, Subnets |
+| **`modules/connectivity`** | Hybrid and hub networking | Transit Gateway, ER, VPN |
+| **`modules/security`** | Network perimeter defense | Firewalls, WAF, NSGs |
+| **`modules/traffic`** | Load balancing and DNS | ALB, Front Door, Private DNS |
 
 ---
 
 ## 🚀 Deployment Guide
 
-### Local Development
+### Local Principal Environment
 ```bash
 # Clone the repository
 git clone https://github.com/devopstrio/terraform-enterprise-networking.git
 cd terraform-enterprise-networking
 
-# Choose an environment
+# Navigate to a reference environment
 cd environments/dev
 
 # Initialize terraform
 terraform init
 
-# Plan infrastructure changes
+# Plan network infrastructure changes
 terraform plan
 
-# Apply infrastructure changes
+# Apply infrastructure transformation
 terraform apply
 ```
 
@@ -438,3 +296,8 @@ terraform apply
 
 ## 📜 License
 Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+<div align="center">
+  <p>© 2026 Devopstrio. All rights reserved.</p>
+</div>
